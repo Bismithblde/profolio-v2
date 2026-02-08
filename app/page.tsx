@@ -9,109 +9,113 @@ gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
 export default function page() {
   useEffect(() => {
+    // create smoother FIRST
     let smoother = ScrollSmoother.create({
       smooth: 1.5,
       effects: true,
       normalizeScroll: true,
     });
 
-    // Use setTimeout to ensure DOM is ready
+    // timeline tied to the pinned section that sequences:
+    // 1) simultaneous letter "leave" (up/down) using viewport units
+    // 2) fade out of letters
+    // 3) Projects easing-in from above (pinned so fast scroll follows)
     setTimeout(() => {
-      // Animate each letter individually
-      const letters = document.querySelectorAll(".letter");
-      letters.forEach((letter, index) => {
-        const isEven = index % 2 === 0;
-        const direction = isEven ? -800 : 800; // Even letters go up (-), odd go down (+)
+      const letters = gsap.utils.toArray<HTMLElement>(".letter");
+      const projectsEl = document.querySelector<HTMLElement>(
+        ".projects-container",
+      );
 
-        gsap.to(letter, {
-          scrollTrigger: {
-            trigger: ".pin-section",
-            start: "top top",
-            end: "+=2000",
-            scrub: 1,
-            markers: false,
-          },
-          y: direction,
-        });
-
-        // Fade out after animation completes
-        gsap.to(letter, {
-          scrollTrigger: {
-            trigger: ".pin-section",
-            start: "+=1000",
-            end: "+=1100",
-            scrub: 1,
-          },
-          opacity: 0,
-        });
-      });
-
-      // Pin the section
-      ScrollTrigger.create({
-        trigger: ".pin-section",
-        pin: true,
-        start: "top top",
-        end: "+=3000",
-      });
-
-      // Set initial state for Projects
-      const projectLetters = document.querySelectorAll(".projects-container");
-      gsap.set(projectLetters, { y: 500, opacity: 0 });
-
-      // Create a timeline for Projects animation - starts later in the scroll
-      let tl = gsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: ".pin-section",
-          start: "top top",
-          end: "+=3000",
+          start: "top top", // pin at the top of the viewport
+          end: "+=3600", // extended pin duration so Projects stays pinned longer
           scrub: 1,
+          pin: true,
           markers: true,
         },
       });
 
-      // Second half: Projects animates in from top
-      tl.to(projectLetters, {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-      });
+      // letters move out simultaneously (alternate directions) using viewport height
+      tl.to(
+        letters,
+        {
+          y: (i: number) => (i % 2 === 0 ? "-100vh" : "100vh"),
+          duration: 1,
+          ease: "power1.out",
+          stagger: 0, // simultaneous
+        },
+        0,
+      );
+
+      // fade letters out near the end of their travel
+      tl.to(
+        letters,
+        {
+          opacity: 0,
+          duration: 0.5,
+          ease: "none",
+        },
+        0.7,
+      );
+
+      // ensure projects initial state (hidden above)
+      if (projectsEl) {
+        gsap.set(projectsEl, { y: "-100vh", opacity: 0 });
+      }
+
+      // bring Projects in from top — starts after letters have left
+      tl.to(
+        ".projects-container",
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          ease: "power2.out",
+        },
+        1.1, // start later in timeline (after letters move)
+      );
     }, 0);
 
     return () => {
       smoother.kill();
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
 
   // Wrap each letter in a span
   const name = "Ryan Chen";
-  const letters = name.split("").map((letter, index) => (
-    <span key={index} className="letter inline-block">
-      {letter}
-    </span>
-  ));
+  const letters = name.split("").map((letter, index) =>
+    letter === " " ? (
+      <span key={index} className="letter inline-block" aria-hidden="true">
+        &nbsp;
+      </span>
+    ) : (
+      <span key={index} className="letter inline-block">
+        {letter}
+      </span>
+    ),
+  );
 
-  // Wrap each project letter in a span - starts off-screen at top
-  const projects = "Projects";
-
+  // Keep projects string static in JSX (we animate .projects-container)
   return (
-    <div id="smooth-wrapper" className="overflow-hidden h-screen">
+    <div id="smooth-wrapper" className="overflow-hidden">
       <div id="smooth-content" className="bg-white">
-        {/* Viewport-height container - centers name in middle of screen */}
-        <div className="pin-section h-screen flex justify-center items-center w-full relative">
-          <h1 className="name flex whitespace-pre-wrap text-black text-7xl jetbrains-mono-500">
+        {/* Pinned section: contains both the name and the Projects overlay */}
+        <div className="pin-section h-screen flex items-center justify-center w-full relative overflow-hidden">
+          {/* Name: letters on one line, centered in the viewport */}
+          <h1 className="name whitespace-nowrap text-black text-7xl jetbrains-mono-500 z-10 mx-auto">
             {letters}
           </h1>
-        </div>
 
-        {/* Extra scroll content below */}
-        <div className="h-screen flex justify-center bg-white">
-          {/* Projects text - positioned absolutely, starts hidden above */}
-          <h1 className="projects-container absolute flex whitespace-pre-wrap text-black text-7xl jetbrains-mono-500">
+          {/* Projects: absolute at top so it can appear from above while the section is pinned */}
+          <h1 className="projects-container absolute top-0 left-0 right-0 flex items-start justify-center text-black text-7xl jetbrains-mono-500 z-20 pointer-events-none pt-6">
             Projects
           </h1>
         </div>
 
+        {/* Following content (appears after pin ends) */}
         <div className="h-screen flex justify-center items-center bg-white">
           <p className="text-2xl">Section 3</p>
         </div>
