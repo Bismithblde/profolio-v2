@@ -33,6 +33,16 @@ export default function page() {
           },
           y: direction,
         });
+
+        // Fade out after animation completes
+        gsap.to(letter, {
+          scrollTrigger: {
+            trigger: ".pin-section",
+            start: "+=2000",
+            end: "+=2100",
+            scrub: 1,
+          },
+        });
       });
 
       // Pin the section AFTER animation completes
@@ -40,7 +50,7 @@ export default function page() {
         trigger: ".pin-section",
         pin: true,
         start: "top top",
-        end: "+=2000",
+        end: "+=5000",
       });
     }, 0);
 
