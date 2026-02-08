@@ -38,19 +38,42 @@ export default function page() {
         gsap.to(letter, {
           scrollTrigger: {
             trigger: ".pin-section",
-            start: "+=2000",
-            end: "+=2100",
+            start: "+=1000",
+            end: "+=1100",
             scrub: 1,
           },
+          opacity: 0,
         });
       });
 
-      // Pin the section AFTER animation completes
+      // Pin the section
       ScrollTrigger.create({
         trigger: ".pin-section",
         pin: true,
         start: "top top",
-        end: "+=5000",
+        end: "+=3000",
+      });
+
+      // Set initial state for Projects
+      const projectLetters = document.querySelectorAll(".projects-container");
+      gsap.set(projectLetters, { y: 500, opacity: 0 });
+
+      // Create a timeline for Projects animation - starts later in the scroll
+      let tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".pin-section",
+          start: "top top",
+          end: "+=3000",
+          scrub: 1,
+          markers: true,
+        },
+      });
+
+      // Second half: Projects animates in from top
+      tl.to(projectLetters, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
       });
     }, 0);
 
@@ -68,6 +91,9 @@ export default function page() {
     </span>
   ));
 
+  // Wrap each project letter in a span - starts off-screen at top
+  const projects = "Projects";
+
   return (
     <div id="smooth-wrapper" className="overflow-hidden h-screen">
       <div id="smooth-content" className="bg-white">
@@ -79,8 +105,11 @@ export default function page() {
         </div>
 
         {/* Extra scroll content below */}
-        <div className="h-screen flex justify-center items-center bg-white">
-          <p className="text-2xl">Section 2</p>
+        <div className="h-screen flex justify-center bg-white">
+          {/* Projects text - positioned absolutely, starts hidden above */}
+          <h1 className="projects-container absolute flex whitespace-pre-wrap text-black text-7xl jetbrains-mono-500">
+            Projects
+          </h1>
         </div>
 
         <div className="h-screen flex justify-center items-center bg-white">
