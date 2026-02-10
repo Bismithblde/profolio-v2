@@ -41,13 +41,7 @@ export default function page() {
         scrub: 1,
         markers: true,
         pin: true,
-        snap: {
-          snapTo: "labels",
-          duration: 0.5, // duration of snap animation
-          ease: "power2.inOut",
-          delay: 0.1, // small delay before snapping
-        },
-        id: "name-pin", // helps with debugging
+        id: "name-pin",
       },
     });
 
@@ -57,8 +51,8 @@ export default function page() {
     const tl2 = gsap.timeline({
       scrollTrigger: {
         trigger: ".project-div",
-        start: "top-=750 100%", // starts when entering viewport
-        end: "center center-=1000", // extends PAST center by 500px
+        start: "top-=750 100%",
+        end: "center center-=1000",
         scrub: 1,
         markers: true,
         id: "pin",
@@ -71,12 +65,11 @@ export default function page() {
       { x: 0, opacity: 1, ease: "power2.out" },
     );
 
-    // Timeline 2: Pin it once it's centered
     gsap.timeline({
       scrollTrigger: {
         trigger: ".project-div",
-        start: "center center", // pin when centered
-        end: "+=1000", // keep pinned for 1000px
+        start: "center center",
+        end: "+=1000", 
         scrub: 1,
         pin: true,
         markers: true,
@@ -91,7 +84,7 @@ export default function page() {
       onRefresh: (self) => {
         if (window.scrollY === 0) {
           self.disable();
-          setTimeout(() => self.enable(), 100); // re-enable after a short delay
+          setTimeout(() => self.enable(), 100); 
         }
       },
     });
