@@ -1,128 +1,145 @@
 "use client";
-
 import React, { useEffect } from "react";
-import gsap from "gsap";
+import { Black_Ops_One, JetBrains_Mono } from "next/font/google";
+import gsap, { snap } from "gsap";
 import ScrollTrigger from "gsap/dist/ScrollTrigger";
 import ScrollSmoother from "gsap/dist/ScrollSmoother";
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
-
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+}
+const blackOpsOne = Black_Ops_One({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-black-ops-one",
+});
+const jetBrainsMonoLarge = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["800"],
+  variable: "--font-jetbrains-mono",
+});
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-jetbrains-mono",
+});
 export default function page() {
   useEffect(() => {
-    // create smoother FIRST
-    let smoother = ScrollSmoother.create({
-      smooth: 1.5,
+    const smoother = ScrollSmoother.create({
+      wrapper: "#smooth-wrapper",
+      content: "#smooth-content",
+      smooth: 1,
       effects: true,
       normalizeScroll: true,
     });
 
-    // timeline tied to the pinned section that sequences:
-    // 1) simultaneous letter "leave" (up/down) using viewport units
-    // 2) fade out of letters
-    // 3) Projects easing-in from above (pinned so fast scroll follows)
-    setTimeout(() => {
-      const letters = gsap.utils.toArray<HTMLElement>(".letter");
-      const projectsEl = document.querySelector<HTMLElement>(
-        ".projects-container",
-      );
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: ".pin-section",
-          start: "top top", // pin at the top of the viewport
-          end: "+=3600", // extended pin duration so Projects stays pinned longer
-          scrub: 1,
-          pin: true,
-          markers: true,
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".name-div",
+        start: "center center",
+        end: "+=1500",
+        scrub: 1,
+        markers: true,
+        pin: true,
+        snap: {
+          snapTo: "labels",
+          duration: 0.5, // duration of snap animation
+          ease: "power2.inOut",
+          delay: 0.1, // small delay before snapping
         },
-      });
+        id: "name-pin", // helps with debugging
+      },
+    });
 
-      // letters move out simultaneously (alternate directions) using viewport height
-      tl.to(
-        letters,
-        {
-          y: (i: number) => (i % 2 === 0 ? "-100vh" : "100vh"),
-          duration: 1,
-          ease: "power1.out",
-          stagger: 0, // simultaneous
-        },
-        0,
-      );
+    tl.to(".name1", { x: "-1350", ease: "power1.out" }, 0);
+    tl.to(".name2", { x: "1350", ease: "power1.out" }, 0);
 
-      // fade letters out near the end of their travel
-      tl.to(
-        letters,
-        {
-          opacity: 0,
-          duration: 0.5,
-          ease: "none",
-        },
-        0.7,
-      );
+    const tl2 = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".project-div",
+        start: "top-=750 100%", // starts when entering viewport
+        end: "center center-=1000", // extends PAST center by 500px
+        scrub: 1,
+        markers: true,
+        id: "pin",
+      },
+    });
 
-      // ensure projects initial state (hidden above)
-      if (projectsEl) {
-        gsap.set(projectsEl, { y: "-100vh", opacity: 0 });
-      }
+    tl2.fromTo(
+      ".project-div",
+      { x: -2000, opacity: 0 },
+      { x: 0, opacity: 1, ease: "power2.out" },
+    );
 
-      // bring Projects in from top — starts after letters have left
-      tl.to(
-        ".projects-container",
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          ease: "power2.out",
-        },
-        1.1, // start later in timeline (after letters move)
-      );
-    }, 0);
-
+    // Timeline 2: Pin it once it's centered
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: ".project-div",
+        start: "center center", // pin when centered
+        end: "+=1000", // keep pinned for 1000px
+        scrub: 1,
+        pin: true,
+        markers: true,
+      },
+    });
+    ScrollTrigger.create({
+      snap: {
+        snapTo: [0, 0.75],
+        duration: 1.2,
+        ease: "power2.inOut",
+      },
+      onRefresh: (self) => {
+        if (window.scrollY === 0) {
+          self.disable();
+          setTimeout(() => self.enable(), 100); // re-enable after a short delay
+        }
+      },
+    });
     return () => {
-      smoother.kill();
+      // cleanup
+      smoother?.kill();
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
-
-  // Wrap each letter in a span
-  const name = "Ryan Chen";
-  const letters = name.split("").map((letter, index) =>
-    letter === " " ? (
-      <span key={index} className="letter inline-block" aria-hidden="true">
-        &nbsp;
-      </span>
-    ) : (
-      <span key={index} className="letter inline-block">
-        {letter}
-      </span>
-    ),
-  );
-
-  // Keep projects string static in JSX (we animate .projects-container)
   return (
     <div id="smooth-wrapper" className="overflow-hidden">
-      <div id="smooth-content" className="bg-white">
-        {/* Pinned section: contains both the name and the Projects overlay */}
-        <div className="pin-section h-screen flex items-center justify-center w-full relative overflow-hidden">
-          {/* Name: letters on one line, centered in the viewport */}
-          <h1 className="name whitespace-nowrap text-black text-7xl jetbrains-mono-500 z-10 mx-auto">
-            {letters}
+      <div id="smooth-content">
+        <div className="name-div flex justify-center items-center h-screen">
+          <div className="flex flex-col">
+            <div className="flex flex-col items-center gap-0">
+              <h1
+                className={`text-center text-[#fcf5e6] text-[175px]  ${blackOpsOne.className} pr-40 name1 leading-50`}
+              >
+                Ryan
+              </h1>
+              <h1
+                className={`text-center text-[#fcf5e6] text-[175px] -mt-6 ${blackOpsOne.className} pl-40 name2 leading-50`}
+              >
+                Chen
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center project-div h-screen items-center flex-col">
+          <h1
+            className={`text-[#fcf5e6] text-[100px] ${blackOpsOne.className} text-center`}
+          >
+            About Me:
           </h1>
-
-          {/* Projects: absolute at top so it can appear from above while the section is pinned */}
-          <h1 className="projects-container absolute top-0 left-0 right-0 flex items-start justify-center text-black text-7xl jetbrains-mono-500 z-20 pointer-events-none pt-6">
-            Projects
-          </h1>
+          <h2
+            className={`text-4xl text-[#fcf5e6] ${jetBrainsMono.className} w-1/2 text-center `}
+          >
+            Hi ! I'm Ryan a full stack software engineer based in New York. I
+            specialize in agentic integration, AI engineering, and building
+            scalable web applications.
+          </h2>
+          <h3
+            className={`${jetBrainsMono.className} pt-10 text-[#fcf5e6] text-2xl`}
+          >
+            Currently attending Stony Brook University
+          </h3>
         </div>
-
-        {/* Following content (appears after pin ends) */}
-        <div className="h-screen flex justify-center items-center bg-white">
-          <p className="text-2xl">Section 3</p>
-        </div>
-
-        <div className="h-screen flex justify-center items-center bg-white">
-          <p className="text-2xl">Section 4</p>
-        </div>
+        <div className="h-screen"></div>
       </div>
     </div>
   );
