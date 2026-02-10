@@ -84,7 +84,7 @@ export default function page() {
     });
     ScrollTrigger.create({
       snap: {
-        snapTo: [0, 0.75],
+        snapTo: [0, 0.7],
         duration: 1.2,
         ease: "power2.inOut",
       },
