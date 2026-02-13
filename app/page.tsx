@@ -73,7 +73,7 @@ export default function page() {
       scrollTrigger: {
         trigger: ".project-div",
         start: "center center",
-        end: "+=1000", 
+        end: "+=1000",
         scrub: 1,
         pin: true,
         markers: true,
@@ -84,7 +84,7 @@ export default function page() {
       scrollTrigger: {
         trigger: ".project-container",
         start: "center center",
-        end: "+=1000",
+        end: "+=500",
         scrub: 1,
         markers: true,
       },
@@ -97,14 +97,14 @@ export default function page() {
 
     ScrollTrigger.create({
       snap: {
-        snapTo: [0, 0.7],
+        snapTo: [0, 0.6, 0.85],
         duration: 1.2,
         ease: "power2.inOut",
       },
       onRefresh: (self) => {
         if (window.scrollY === 0) {
           self.disable();
-          setTimeout(() => self.enable(), 100); 
+          setTimeout(() => self.enable(), 100);
         }
       },
     });
@@ -133,7 +133,7 @@ export default function page() {
             </div>
           </div>
         </div>
-        <div className="flex justify-center project-div h-screen items-center flex-col">
+        <div className="flex justify-center project-div h-screen items-center flex-col gap-10">
           <h1
             className={`text-[#fcf5e6] text-[100px] ${blackOpsOne.className} text-center`}
           >
@@ -151,14 +151,24 @@ export default function page() {
           >
             Currently attending Stony Brook University
           </h3>
+          <div className="icons flex gap-4 justify-center items-center bg-[#fcf5e6] rounded-full w-[200px] h-[100px]">
+            <a href="https://github.com/bismithblde" target="_blank">
+              <img src="github.png" alt="github" className="w-15 h-15" />
+            </a>
+            <a href="https://www.linkedin.com/in/bismithblde/" target="_blank">
+              <img src="linkedin.png" alt="linkedin" className="w-25 h-25" />
+            </a>
+          </div>
         </div>
-        <div className="project-container flex flex-col items-center justify-center">
+        <div className="project-container flex flex-col items-center justify-center pt-[500px] gap-10">
           <h1
             className={`text-[#fcf5e6] text-[100px] ${blackOpsOne.className} text-center`}
           >
             Projects:
           </h1>
+          <div className="flex flex-col items-center justify-center bg-amber-50 h-[700px] w-[1200px]"></div>
         </div>
+
         <div className="h-screen"></div>
       </div>
     </div>
