@@ -143,8 +143,9 @@ export default function page() {
             className={`text-4xl text-[#fcf5e6] ${jetBrainsMono.className} w-1/2 text-center `}
           >
             Hi ! I'm Ryan a full stack software engineer based in New York. I
-            specialize in agentic integration, AI engineering, and building
-            scalable web applications.
+            build end to end scalable web applications with agentic integration
+            and responsive design. Currently I am interested in machine
+            learning, and data science.
           </h2>
           <h3
             className={`${jetBrainsMono.className} pt-10 text-[#fcf5e6] text-2xl`}
@@ -166,13 +167,9 @@ export default function page() {
           >
             Projects:
           </h1>
-          <div
-            className="group flex flex-col w-[1200px] border border-[#fcf5e6]/20 rounded-lg overflow-hidden"
-          >
+          <div className="group flex flex-col w-[1200px] border border-[#fcf5e6]/20 rounded-lg overflow-hidden">
             {/* Interlink */}
-            <div
-              className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0"
-            >
+            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
               <div className="p-10 flex flex-col gap-4">
                 <h2
                   className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
@@ -207,9 +204,7 @@ export default function page() {
               </div>
             </div>
             {/* Flash (popquiz) */}
-            <div
-              className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0"
-            >
+            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
               <div className="p-10 flex flex-col gap-4">
                 <h2
                   className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
