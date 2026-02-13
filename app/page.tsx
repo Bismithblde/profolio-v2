@@ -151,7 +151,7 @@ export default function page() {
           >
             Currently attending Stony Brook University
           </h3>
-          <div className="icons flex gap-4 justify-center items-center bg-[#fcf5e6] rounded-full w-[200px] h-[100px]">
+          <div className="flex gap-4 justify-center items-center bg-[#fcf5e6] rounded-full w-[200px] h-[100px]">
             <a href="https://github.com/bismithblde" target="_blank">
               <img src="github.png" alt="github" className="w-15 h-15" />
             </a>
@@ -166,7 +166,75 @@ export default function page() {
           >
             Projects:
           </h1>
-          <div className="flex flex-col items-center justify-center bg-amber-50 h-[700px] w-[1200px]"></div>
+          <div
+            className="group flex flex-col w-[1200px] border border-[#fcf5e6]/20 rounded-lg overflow-hidden"
+          >
+            {/* Interlink */}
+            <div
+              className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0"
+            >
+              <div className="p-10 flex flex-col gap-4">
+                <h2
+                  className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
+                >
+                  Interlink
+                </h2>
+                <p
+                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
+                >
+                  Connect with fellow students based on your interests, hobbies,
+                  or shared classes. Schedule-based matching so you always find
+                  time to meet.
+                </p>
+                <div className="flex gap-4 pt-2">
+                  <a
+                    href="https://github.com/Bismithblde/Interlink_web"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
+                  >
+                    GitHub
+                  </a>
+                  <a
+                    href="https://interlink-web.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
+                  >
+                    Live site
+                  </a>
+                </div>
+              </div>
+            </div>
+            {/* Flash (popquiz) */}
+            <div
+              className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0"
+            >
+              <div className="p-10 flex flex-col gap-4">
+                <h2
+                  className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
+                >
+                  Flash
+                </h2>
+                <p
+                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
+                >
+                  Engage your students by generating instant quizzes during your
+                  lesson—aligned to what you&apos;re teaching, in the moment.
+                </p>
+                <div className="flex gap-4 pt-2">
+                  <a
+                    href="https://github.com/Bismithblde/popquiz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
+                  >
+                    GitHub
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="h-screen"></div>
