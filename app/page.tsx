@@ -50,14 +50,18 @@ export default function page() {
         id: "name-pin", // helps with debugging
       },
     });
+    const nameDiv = document.querySelector<HTMLElement>(".name-div");
+    const vw = window.innerWidth;
 
-    tl.to(".name1", { x: "-1350", ease: "power1.out" }, 0);
-    tl.to(".name2", { x: "1350", ease: "power1.out" }, 0);
+    const transformDistance = Math.ceil(vw / 2 + 200);
+
+    tl.to(".name1", { x: -transformDistance, ease: "power1.out" }, 0);
+    tl.to(".name2", { x: transformDistance, ease: "power1.out" }, 0);
 
     const tl2 = gsap.timeline({
       scrollTrigger: {
         trigger: ".project-div",
-        start: "top-=750 100%", // starts when entering viewport
+        start: "top-=1000 100%",
         end: "center center-=1000", // extends PAST center by 500px
         scrub: 1,
         markers: true,
@@ -82,6 +86,22 @@ export default function page() {
         markers: true,
       },
     });
+
+    const tl3 = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".project-container",
+        start: "center center",
+        end: "+=1000",
+        scrub: 1,
+        markers: true,
+      },
+    });
+    tl3.fromTo(
+      ".project-container",
+      { opacity: 0 },
+      { opacity: 1, ease: "power2.out" },
+    );
+
     ScrollTrigger.create({
       snap: {
         snapTo: [0, 0.7],
@@ -138,6 +158,13 @@ export default function page() {
           >
             Currently attending Stony Brook University
           </h3>
+        </div>
+        <div className="project-container flex flex-col items-center justify-center">
+          <h1
+            className={`text-[#fcf5e6] text-[100px] ${blackOpsOne.className} text-center`}
+          >
+            Projects:
+          </h1>
         </div>
         <div className="h-screen"></div>
       </div>
