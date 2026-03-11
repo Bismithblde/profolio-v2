@@ -39,7 +39,6 @@ export default function page() {
         start: "center center",
         end: "+=1500",
         scrub: 1,
-        markers: true,
         pin: true,
         id: "name-pin",
       },
@@ -58,7 +57,6 @@ export default function page() {
         start: "top-=1000 100%",
         end: "center center-=1000",
         scrub: 1,
-        markers: true,
         id: "pin",
       },
     });
@@ -76,7 +74,6 @@ export default function page() {
         end: "+=1000",
         scrub: 1,
         pin: true,
-        markers: true,
       },
     });
 
@@ -86,7 +83,6 @@ export default function page() {
         start: "center center",
         end: "+=500",
         scrub: 1,
-        markers: true,
       },
     });
     tl3.fromTo(
