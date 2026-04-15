@@ -50,11 +50,12 @@ export default function page() {
 
     tl.to(".name1", { x: -transformDistance, ease: "power1.out" }, 0);
     tl.to(".name2", { x: transformDistance, ease: "power1.out" }, 0);
+    tl.to(".scroll-indicator", { opacity: 0, y: 20, ease: "power1.out" }, 0);
 
     const tl2 = gsap.timeline({
       scrollTrigger: {
         trigger: ".project-div",
-        start: "top-=1000 100%",
+        start: "top-=1300 100%",
         end: "center center-=1000",
         scrub: 1,
         id: "pin",
@@ -80,7 +81,7 @@ export default function page() {
     const tl3 = gsap.timeline({
       scrollTrigger: {
         trigger: ".project-container",
-        start: "center center",
+        start: "top bottom-=150",
         end: "+=500",
         scrub: 1,
       },
@@ -93,7 +94,7 @@ export default function page() {
 
     ScrollTrigger.create({
       snap: {
-        snapTo: [0, 0.6, 0.85],
+        snapTo: [0, 0.4, 0.8],
         duration: 1.2,
         ease: "power2.inOut",
       },
@@ -113,7 +114,7 @@ export default function page() {
   return (
     <div id="smooth-wrapper" className="overflow-hidden">
       <div id="smooth-content">
-        <div className="name-div flex justify-center items-center h-screen">
+        <div className="name-div relative flex justify-center items-center h-screen">
           <div className="flex flex-col">
             <div className="flex flex-col items-center gap-0">
               <h1
@@ -127,6 +128,12 @@ export default function page() {
                 Chen
               </h1>
             </div>
+          </div>
+          <div className="scroll-indicator pointer-events-none absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-[#fcf5e6]/75 animate-pulse">
+            <p className={`text-sm tracking-[0.4em] uppercase ${jetBrainsMono.className}`}>
+              Scroll
+            </p>
+            <div className="text-2xl leading-none">↓</div>
           </div>
         </div>
         <div className="flex justify-center project-div h-screen items-center flex-col gap-10">
@@ -167,11 +174,18 @@ export default function page() {
             {/* Interlink */}
             <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
               <div className="p-10 flex flex-col gap-4">
-                <h2
-                  className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
-                >
-                  Interlink
-                </h2>
+                <div className="flex items-start justify-between gap-6">
+                  <h2
+                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
+                  >
+                    Interlink
+                  </h2>
+                  <p
+                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
+                  >
+                    React, Express.js, PostgreSQL, Redis, OpenAI
+                  </p>
+                </div>
                 <p
                   className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
                 >
@@ -202,11 +216,18 @@ export default function page() {
             {/* Flash (popquiz) */}
             <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
               <div className="p-10 flex flex-col gap-4">
-                <h2
-                  className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
-                >
-                  Flash
-                </h2>
+                <div className="flex items-start justify-between gap-6">
+                  <h2
+                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
+                  >
+                    Flash
+                  </h2>
+                  <p
+                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
+                  >
+                    FastAPI, Next.js, Gemini API, SQLite, Asyncio
+                  </p>
+                </div>
                 <p
                   className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
                 >
@@ -221,6 +242,92 @@ export default function page() {
                     className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
                   >
                     GitHub
+                  </a>
+                </div>
+              </div>
+            </div>
+            {/* Ecocart */}
+            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
+              <div className="p-10 flex flex-col gap-4">
+                <div className="flex items-start justify-between gap-6">
+                  <h2
+                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
+                  >
+                    Ecocart
+                  </h2>
+                  <p
+                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
+                  >
+                    Next.js, OpenAI, Supabase, Pinecone, Serper
+                  </p>
+                </div>
+                <p
+                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
+                >
+                  Never guess whether a brand aligns with your values. Ecocart
+                  uses multi-objective, agent-based scoring to surface
+                  up-to-date company scandals, ethics, and environmental
+                  practices in one place.
+                </p>
+                <div className="flex gap-4 pt-2">
+                  <a
+                    href="https://github.com/Bismithblde/EcoCart"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
+                  >
+                    GitHub
+                  </a>
+                  <a
+                    href="https://ecocart.rychen.dev/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
+                  >
+                    Live site
+                  </a>
+                </div>
+              </div>
+            </div>
+            {/* Mineral Water */}
+            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
+              <div className="p-10 flex flex-col gap-4">
+                <div className="flex items-start justify-between gap-6">
+                  <h2
+                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
+                  >
+                    Mineral Water
+                  </h2>
+                  <p
+                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
+                  >
+                    Next.js, PostgreSQL, Supabase
+                  </p>
+                </div>
+                <p
+                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
+                >
+                  Compare premium water brands by exact mineral composition and
+                  what those minerals mean for your body. The platform also
+                  combines data from 50,000+ NYC lead testing sites so users can
+                  make more informed water decisions.
+                </p>
+                <div className="flex gap-4 pt-2">
+                  <a
+                    href="https://github.com/Marreonline0201/code_a_site"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
+                  >
+                    GitHub
+                  </a>
+                  <a
+                    href="https://code-a-site-eta.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
+                  >
+                    Live site
                   </a>
                 </div>
               </div>
