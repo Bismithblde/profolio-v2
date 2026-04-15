@@ -33,6 +33,17 @@ export default function page() {
       normalizeScroll: true,
     });
 
+    gsap.fromTo(
+      ".heart-outline path",
+      { strokeDasharray: 1600, strokeDashoffset: 1600, opacity: 0 },
+      {
+        strokeDashoffset: 0,
+        opacity: 0.9,
+        duration: 2.2,
+        ease: "power2.inOut",
+      },
+    );
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: ".name-div",
@@ -50,6 +61,7 @@ export default function page() {
 
     tl.to(".name1", { x: -transformDistance, ease: "power1.out" }, 0);
     tl.to(".name2", { x: transformDistance, ease: "power1.out" }, 0);
+    tl.to(".heart-outline", { opacity: 0, scale: 0.96, ease: "power1.out" }, 0);
     tl.to(".scroll-indicator", { opacity: 0, y: 20, ease: "power1.out" }, 0);
 
     const tl2 = gsap.timeline({
@@ -115,6 +127,21 @@ export default function page() {
     <div id="smooth-wrapper" className="overflow-hidden">
       <div id="smooth-content">
         <div className="name-div relative flex justify-center items-center h-screen">
+          <svg
+            className="heart-outline pointer-events-none absolute left-1/2 h-[1089px] w-[1592px] -translate-x-1/2 overflow-visible"
+            viewBox="0 0 760 520"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M380 458C310 401 136 292 136 162C136 94 186 46 252 46C307 46 347 82 380 129C413 82 453 46 508 46C574 46 624 94 624 162C624 292 450 401 380 458Z"
+              stroke="#fcf5e6"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.8"
+            />
+          </svg>
           <div className="flex flex-col">
             <div className="flex flex-col items-center gap-0">
               <h1
