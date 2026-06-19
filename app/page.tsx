@@ -2,8 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import gsap from "gsap";
+import dynamic from "next/dynamic";
 import ScrollTrigger from "gsap/dist/ScrollTrigger";
 import ScrollSmoother from "gsap/dist/ScrollSmoother";
+
+const LiquidGlass = dynamic(() => import("liquid-glass-react"), {
+  ssr: false,
+});
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
@@ -55,6 +60,89 @@ const skills = [
   "Redis",
   "Tailwind",
 ];
+
+function CrosshairCursor() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasFinePointer, setHasFinePointer] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(pointer: fine)");
+    const updatePointerMode = () => {
+      setHasFinePointer(mediaQuery.matches);
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+
+      setPosition({ x: event.clientX, y: event.clientY });
+      setIsVisible(true);
+    };
+
+    const hideCursor = () => {
+      setIsVisible(false);
+    };
+
+    updatePointerMode();
+    mediaQuery.addEventListener("change", updatePointerMode);
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerleave", hideCursor);
+    window.addEventListener("blur", hideCursor);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updatePointerMode);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerleave", hideCursor);
+      window.removeEventListener("blur", hideCursor);
+    };
+  }, []);
+
+  if (!hasFinePointer) return null;
+
+  return (
+    <div
+      className={`pointer-events-none fixed inset-0 z-[100] transition-opacity duration-200 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+      aria-hidden="true"
+    >
+      <div
+        className="absolute left-0 h-px bg-[#fcf5e6]/10"
+        style={{
+          top: `${position.y}px`,
+          width: `${Math.max(position.x - 22, 0)}px`,
+        }}
+      />
+      <div
+        className="absolute right-0 h-px bg-[#fcf5e6]/10"
+        style={{
+          top: `${position.y}px`,
+          width: `calc(100vw - ${position.x + 22}px)`,
+        }}
+      />
+      <div
+        className="absolute top-0 w-px bg-[#fcf5e6]/10"
+        style={{
+          left: `${position.x}px`,
+          height: `${Math.max(position.y - 22, 0)}px`,
+        }}
+      />
+      <div
+        className="absolute bottom-0 w-px bg-[#fcf5e6]/10"
+        style={{
+          left: `${position.x}px`,
+          height: `calc(100vh - ${position.y + 22}px)`,
+        }}
+      />
+      <div
+        className="absolute h-7 w-7 rounded-full border border-[#fcf5e6]/70 bg-[#fcf5e6]/10 backdrop-invert"
+        style={{
+          transform: `translate3d(${position.x - 14}px, ${position.y - 14}px, 0)`,
+        }}
+      />
+    </div>
+  );
+}
 
 function HeroPhrase({ text }: { text: string }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -117,6 +205,9 @@ export default function Page() {
     });
 
     const context = gsap.context(() => {
+      const previousBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+
       gsap.set(".hero-word", { y: 56, opacity: 0 });
       gsap.utils.toArray<HTMLElement>(".project-card").forEach((card, index) => {
         gsap.set(card, {
@@ -131,9 +222,33 @@ export default function Page() {
       const hero = gsap.timeline({ defaults: { ease: "power3.out" } });
       hero
         .fromTo(
+          ".intro-name",
+          { y: 40, opacity: 0, scale: 0.96 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.5 },
+        )
+        .to(".intro-name", {
+          y: -28,
+          opacity: 0,
+          duration: 0.44,
+          ease: "power2.in",
+        })
+        .to(
+          ".intro-screen",
+          {
+            yPercent: -100,
+            duration: 1.05,
+            ease: "power4.inOut",
+          },
+          "-=0.1",
+        )
+        .set(".intro-screen", { display: "none" })
+        .call(() => {
+          document.body.style.overflow = previousBodyOverflow;
+        })
+        .fromTo(
           ".nav-shell",
-          { y: -28, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.75 },
+          { opacity: 0 },
+          { opacity: 1, duration: 0.75 },
         )
         .to(
           ".hero-word",
@@ -206,6 +321,7 @@ export default function Page() {
       );
 
       return () => {
+        document.body.style.overflow = previousBodyOverflow;
         internalLinks.forEach((link) => {
           link.removeEventListener("click", handleSmoothAnchorClick);
         });
@@ -222,33 +338,60 @@ export default function Page() {
   return (
     <main
       id="smooth-wrapper"
-      className="w-full max-w-full overflow-x-hidden bg-[#091315] text-[#fcf5e6] [font-family:var(--font-geist-sans)]"
+      className="w-full max-w-full cursor-none overflow-x-hidden bg-[#091315] text-[#fcf5e6] [font-family:var(--font-geist-sans)]"
     >
+      <CrosshairCursor />
+      <div className="intro-screen fixed inset-0 z-[90] flex items-center justify-center bg-black text-[#fcf5e6]">
+        <h1 className="intro-name text-center text-[clamp(4.5rem,14vw,14rem)] font-semibold leading-none tracking-[-0.1em]">
+          Ryan Chen
+        </h1>
+      </div>
       <div id="smooth-content" className="relative overflow-hidden">
         <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_18%_8%,rgba(252,245,230,0.11),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(122,167,154,0.13),transparent_32%),linear-gradient(180deg,#091315_0%,#071012_56%,#0d1716_100%)]" />
         <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.055] [background-image:linear-gradient(#fcf5e6_1px,transparent_1px),linear-gradient(90deg,#fcf5e6_1px,transparent_1px)] [background-size:56px_56px]" />
 
-        <nav className="nav-shell fixed left-1/2 top-5 z-50 flex w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 items-center justify-between rounded-full border border-[#fcf5e6]/15 bg-[#091315]/72 px-4 py-3 text-sm text-[#fcf5e6] shadow-2xl shadow-black/20 backdrop-blur-xl md:px-6">
-          <a href="#top" className="font-medium tracking-[-0.03em]">
-            Ryan Chen
-          </a>
-          <div className="hidden items-center gap-7 text-[#fcf5e6]/68 md:flex">
-            <a href="#work" className="transition-colors hover:text-[#fcf5e6]">
-              Work
-            </a>
-            <a href="#contact" className="transition-colors hover:text-[#fcf5e6]">
-              Contact
-            </a>
-          </div>
-          <a
-            href="https://www.linkedin.com/in/bismithblde/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-[#fcf5e6] px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#091315] transition-transform duration-500 hover:scale-105"
+        <LiquidGlass
+          className="nav-shell z-50 text-[#fcf5e6]"
+          style={{
+            position: "fixed",
+            top: "52px",
+            left: "50%",
+            width: "min(calc(100vw - 2rem), 64rem)",
+          }}
+          displacementScale={56}
+          blurAmount={0.12}
+          saturation={150}
+          aberrationIntensity={1.6}
+          elasticity={0.24}
+          cornerRadius={999}
+          padding="0"
+          mode="standard"
+        >
+          <nav
+            className="flex items-center justify-between gap-10 rounded-full border border-[#fcf5e6]/18 bg-[#071012]/82 px-5 py-3 text-sm shadow-[inset_0_1px_0_rgba(252,245,230,0.2),inset_0_-16px_30px_rgba(0,0,0,0.28),0_18px_55px_rgba(0,0,0,0.36)] md:px-7"
+            style={{ width: "min(calc(100vw - 2rem), 64rem)" }}
           >
-            LinkedIn
-          </a>
-        </nav>
+            <a href="#top" className="font-medium tracking-[-0.03em]">
+              Ryan Chen
+            </a>
+            <div className="hidden items-center gap-7 text-[#fcf5e6]/68 md:flex">
+              <a href="#work" className="transition-colors hover:text-[#fcf5e6]">
+                Work
+              </a>
+              <a href="#contact" className="transition-colors hover:text-[#fcf5e6]">
+                Contact
+              </a>
+            </div>
+            <a
+              href="https://www.linkedin.com/in/bismithblde/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-[#fcf5e6]/35 bg-[#fcf5e6]/82 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#091315] shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_8px_22px_rgba(0,0,0,0.2)] transition-all duration-500 hover:scale-105 hover:bg-[#fcf5e6]"
+            >
+              LinkedIn
+            </a>
+          </nav>
+        </LiquidGlass>
 
         <section
           id="top"
@@ -258,7 +401,6 @@ export default function Page() {
             <div>
               <div className="mb-7 flex items-center justify-center gap-5 text-sm uppercase tracking-[0.34em] text-[#fcf5e6]/56 [font-family:var(--font-geist-mono)]">
                 <p>Ryan Chen</p>
-                <span className="h-px w-8 bg-[#fcf5e6]/24" aria-hidden="true" />
                 <p className="flex items-center gap-2">
                   <svg
                     className="h-4 w-4"
