@@ -1,369 +1,448 @@
 "use client";
-import React, { useEffect } from "react";
-import { Black_Ops_One, JetBrains_Mono } from "next/font/google";
-import gsap, { snap } from "gsap";
+
+import React, { useEffect, useState } from "react";
+import gsap from "gsap";
 import ScrollTrigger from "gsap/dist/ScrollTrigger";
 import ScrollSmoother from "gsap/dist/ScrollSmoother";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 }
-const blackOpsOne = Black_Ops_One({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-black-ops-one",
-});
-const jetBrainsMonoLarge = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["800"],
-  variable: "--font-jetbrains-mono",
-});
-const jetBrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-jetbrains-mono",
-});
-export default function page() {
+
+const projects = [
+  {
+    title: "Interlink",
+    stack: "React, Express.js, PostgreSQL, Redis, OpenAI",
+    result:
+      "Built a student matching platform with class, interest, and schedule-based matching.",
+    github: "https://github.com/Bismithblde/Interlink_web",
+    live: "https://interlink-web.vercel.app/",
+  },
+  {
+    title: "Flash",
+    stack: "FastAPI, Next.js, Gemini API, SQLite, Asyncio",
+    result:
+      "Built a classroom quiz generator that creates lesson-aligned questions in real time.",
+    github: "https://github.com/Bismithblde/popquiz",
+  },
+  {
+    title: "Ecocart",
+    stack: "Next.js, OpenAI, Supabase, Pinecone, Serper",
+    result:
+      "Built an AI research tool that scores brands using retrieved web evidence and stored company data.",
+    github: "https://github.com/Bismithblde/EcoCart",
+    live: "https://ecocart.rychen.dev/",
+  },
+  {
+    title: "Mineral Water",
+    stack: "Next.js, PostgreSQL, Supabase",
+    result:
+      "Built a comparison tool for water mineral content and NYC lead testing data from 50,000+ sites.",
+    github: "https://github.com/Marreonline0201/code_a_site",
+    live: "https://code-a-site-eta.vercel.app/",
+  },
+];
+
+const skills = [
+  "Next.js",
+  "React",
+  "TypeScript",
+  "Python",
+  "FastAPI",
+  "PostgreSQL",
+  "Supabase",
+  "OpenAI",
+  "Redis",
+  "Tailwind",
+];
+
+function HeroPhrase({ text }: { text: string }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <span
+      className="hero-word inline-block whitespace-nowrap"
+      aria-label={text}
+      onMouseLeave={() => setHoveredIndex(null)}
+    >
+      {[...text].map((character, index) => {
+        const distance =
+          hoveredIndex === null ? Number.POSITIVE_INFINITY : Math.abs(index - hoveredIndex);
+        const fillOpacity =
+          distance === 0
+            ? 0
+            : distance === 1
+              ? 0.12
+              : distance === 2
+                ? 0.32
+                : distance === 3
+                  ? 0.58
+                  : 1;
+        const lift = distance <= 3 ? (4 - distance) * -1.6 : 0;
+
+        return character === " " ? (
+          <span
+            className="inline-block w-[0.28em]"
+            aria-hidden="true"
+            key={`${text}-space-${index}`}
+          />
+        ) : (
+          <span
+            className="inline-block transition-[color,transform] duration-300 ease-out [-webkit-text-stroke:1.4px_#fcf5e6]"
+            aria-hidden="true"
+            key={`${text}-${character}-${index}`}
+            onMouseEnter={() => setHoveredIndex(index)}
+            style={{
+              color: `rgba(252, 245, 230, ${fillOpacity})`,
+              transform: `translateY(${lift}px)`,
+            }}
+          >
+            {character}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+export default function Page() {
   useEffect(() => {
     const smoother = ScrollSmoother.create({
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
-      smooth: 1,
+      smooth: 1.8,
+      speed: 0.55,
       effects: true,
       normalizeScroll: true,
     });
 
-    gsap.fromTo(
-      ".heart-outline path",
-      { strokeDasharray: 1600, strokeDashoffset: 1600, opacity: 0 },
-      {
-        strokeDashoffset: 0,
-        opacity: 0.9,
-        duration: 2.2,
-        ease: "power2.inOut",
-      },
-    );
+    const context = gsap.context(() => {
+      gsap.set(".hero-word", { y: 56, opacity: 0 });
+      gsap.utils.toArray<HTMLElement>(".project-card").forEach((card, index) => {
+        gsap.set(card, {
+          clipPath:
+            index % 2 === 0
+              ? "polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%)"
+              : "polygon(0% 100%, 0% 100%, 0% 100%, 0% 100%)",
+          opacity: 0.2,
+        });
+      });
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: ".name-div",
-        start: "center center",
-        end: "+=1500",
-        scrub: 1,
-        pin: true,
-        id: "name-pin",
-      },
+      const hero = gsap.timeline({ defaults: { ease: "power3.out" } });
+      hero
+        .fromTo(
+          ".nav-shell",
+          { y: -28, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.75 },
+        )
+        .to(
+          ".hero-word",
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            stagger: 0.055,
+          },
+          "-=0.35",
+        );
+
+      const projectsTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".projects-title",
+          start: "center center",
+          toggleActions: "play none none none",
+        },
+      });
+
+      projectsTimeline
+        .to(".project-card", {
+          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+          opacity: 1,
+          duration: 0.64,
+          ease: "power3.inOut",
+        })
+        .to(".projects-title-letter", {
+          keyframes: [
+            { y: -28, color: "rgba(252, 245, 230, 0)", duration: 0.18 },
+            { y: 0, color: "#fcf5e6", duration: 0.18 },
+          ],
+          ease: "sine.inOut",
+          stagger: 0.045,
+        });
+
+      const handleSmoothAnchorClick = (event: Event) => {
+        const link = event.currentTarget as HTMLAnchorElement;
+        const hash = link.getAttribute("href");
+        if (!hash?.startsWith("#")) return;
+
+        event.preventDefault();
+        const target = document.querySelector(hash);
+        if (!target) return;
+
+        smoother.scrollTo(target, true, "top top");
+        window.history.replaceState(null, "", hash);
+        window.setTimeout(() => ScrollTrigger.refresh(), 50);
+      };
+
+      const internalLinks = gsap.utils.toArray<HTMLAnchorElement>('a[href^="#"]');
+      internalLinks.forEach((link) => {
+        link.addEventListener("click", handleSmoothAnchorClick);
+      });
+
+      gsap.fromTo(
+        ".cta-line",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          transformOrigin: "left center",
+          ease: "power2.inOut",
+          scrollTrigger: {
+            trigger: ".cta-section",
+            start: "top 78%",
+            end: "center center",
+            scrub: 1,
+          },
+        },
+      );
+
+      return () => {
+        internalLinks.forEach((link) => {
+          link.removeEventListener("click", handleSmoothAnchorClick);
+        });
+      };
     });
-    const nameDiv = document.querySelector<HTMLElement>(".name-div");
-    const vw = window.innerWidth;
 
-    const transformDistance = Math.ceil(vw / 2 + 200);
-
-    tl.to(".name1", { x: -transformDistance, ease: "power1.out" }, 0);
-    tl.to(".name2", { x: transformDistance, ease: "power1.out" }, 0);
-    tl.to(".heart-outline", { opacity: 0, scale: 0.96, ease: "power1.out" }, 0);
-    tl.to(".scroll-indicator", { opacity: 0, y: 20, ease: "power1.out" }, 0);
-
-    const tl2 = gsap.timeline({
-      scrollTrigger: {
-        trigger: ".project-div",
-        start: "top-=1300 100%",
-        end: "center center-=1000",
-        scrub: 1,
-        id: "pin",
-      },
-    });
-
-    tl2.fromTo(
-      ".project-div",
-      { x: -2000, opacity: 0 },
-      { x: 0, opacity: 1, ease: "power2.out" },
-    );
-
-    gsap.timeline({
-      scrollTrigger: {
-        trigger: ".project-div",
-        start: "center center",
-        end: "+=1000",
-        scrub: 1,
-        pin: true,
-      },
-    });
-
-    const tl3 = gsap.timeline({
-      scrollTrigger: {
-        trigger: ".project-container",
-        start: "top bottom-=150",
-        end: "+=500",
-        scrub: 1,
-      },
-    });
-    tl3.fromTo(
-      ".project-container",
-      { opacity: 0 },
-      { opacity: 1, ease: "power2.out" },
-    );
-
-    ScrollTrigger.create({
-      snap: {
-        snapTo: [0, 0.4, 0.8],
-        duration: 1.2,
-        ease: "power2.inOut",
-      },
-      onRefresh: (self) => {
-        if (window.scrollY === 0) {
-          self.disable();
-          setTimeout(() => self.enable(), 100);
-        }
-      },
-    });
     return () => {
-      // cleanup
+      context.revert();
       smoother?.kill();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
-  return (
-    <div id="smooth-wrapper" className="overflow-hidden">
-      <div id="smooth-content">
-        <div className="name-div relative flex justify-center items-center h-screen">
-          <svg
-            className="heart-outline pointer-events-none absolute left-1/2 h-[1089px] w-[1592px] -translate-x-1/2 overflow-visible"
-            viewBox="0 0 760 520"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M380 458C310 401 136 292 136 162C136 94 186 46 252 46C307 46 347 82 380 129C413 82 453 46 508 46C574 46 624 94 624 162C624 292 450 401 380 458Z"
-              stroke="#fcf5e6"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.8"
-            />
-          </svg>
-          <div className="flex flex-col">
-            <div className="flex flex-col items-center gap-0">
-              <h1
-                className={`text-center text-[#fcf5e6] text-[175px]  ${blackOpsOne.className} pr-40 name1 leading-50`}
-              >
-                Ryan
-              </h1>
-              <h1
-                className={`text-center text-[#fcf5e6] text-[175px] -mt-6 ${blackOpsOne.className} pl-40 name2 leading-50`}
-              >
-                Chen
-              </h1>
-            </div>
-          </div>
-          <div className="scroll-indicator pointer-events-none absolute bottom-10 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-[#fcf5e6]/75 animate-pulse">
-            <p className={`text-sm tracking-[0.4em] uppercase ${jetBrainsMono.className}`}>
-              Scroll
-            </p>
-            <div className="text-2xl leading-none">↓</div>
-          </div>
-        </div>
-        <div className="flex justify-center project-div h-screen items-center flex-col gap-10">
-          <h1
-            className={`text-[#fcf5e6] text-[100px] ${blackOpsOne.className} text-center`}
-          >
-            About Me:
-          </h1>
-          <h2
-            className={`text-4xl text-[#fcf5e6] ${jetBrainsMono.className} w-1/2 text-center `}
-          >
-            Hi ! I'm Ryan a full stack software engineer based in New York. I
-            build end to end scalable web applications with agentic integration
-            and responsive design. Currently I am interested in machine
-            learning, and data science.
-          </h2>
-          <h3
-            className={`${jetBrainsMono.className} pt-10 text-[#fcf5e6] text-2xl`}
-          >
-            Currently attending Stony Brook University
-          </h3>
-          <div className="flex gap-4 justify-center items-center bg-[#fcf5e6] rounded-full w-[200px] h-[100px]">
-            <a href="https://github.com/bismithblde" target="_blank">
-              <img src="github.png" alt="github" className="w-15 h-15" />
-            </a>
-            <a href="https://www.linkedin.com/in/bismithblde/" target="_blank">
-              <img src="linkedin.png" alt="linkedin" className="w-25 h-25" />
-            </a>
-          </div>
-        </div>
-        <div className="project-container flex flex-col items-center justify-center pt-[500px] gap-10">
-          <h1
-            className={`text-[#fcf5e6] text-[100px] ${blackOpsOne.className} text-center`}
-          >
-            Projects:
-          </h1>
-          <div className="group flex flex-col w-[1200px] border border-[#fcf5e6]/20 rounded-lg overflow-hidden">
-            {/* Interlink */}
-            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
-              <div className="p-10 flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-6">
-                  <h2
-                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
-                  >
-                    Interlink
-                  </h2>
-                  <p
-                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
-                  >
-                    React, Express.js, PostgreSQL, Redis, OpenAI
-                  </p>
-                </div>
-                <p
-                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
-                >
-                  Connect with fellow students based on your interests, hobbies,
-                  or shared classes. Schedule-based matching so you always find
-                  time to meet.
-                </p>
-                <div className="flex gap-4 pt-2">
-                  <a
-                    href="https://github.com/Bismithblde/Interlink_web"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
-                  >
-                    GitHub
-                  </a>
-                  <a
-                    href="https://interlink-web.vercel.app/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
-                  >
-                    Live site
-                  </a>
-                </div>
-              </div>
-            </div>
-            {/* Flash (popquiz) */}
-            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
-              <div className="p-10 flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-6">
-                  <h2
-                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
-                  >
-                    Flash
-                  </h2>
-                  <p
-                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
-                  >
-                    FastAPI, Next.js, Gemini API, SQLite, Asyncio
-                  </p>
-                </div>
-                <p
-                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
-                >
-                  Engage your students by generating instant quizzes during your
-                  lesson—aligned to what you&apos;re teaching, in the moment.
-                </p>
-                <div className="flex gap-4 pt-2">
-                  <a
-                    href="https://github.com/Bismithblde/popquiz"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
-                  >
-                    GitHub
-                  </a>
-                </div>
-              </div>
-            </div>
-            {/* Ecocart */}
-            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
-              <div className="p-10 flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-6">
-                  <h2
-                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
-                  >
-                    Ecocart
-                  </h2>
-                  <p
-                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
-                  >
-                    Next.js, OpenAI, Supabase, Pinecone, Serper
-                  </p>
-                </div>
-                <p
-                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
-                >
-                  Never guess whether a brand aligns with your values. Ecocart
-                  uses multi-objective, agent-based scoring to surface
-                  up-to-date company scandals, ethics, and environmental
-                  practices in one place.
-                </p>
-                <div className="flex gap-4 pt-2">
-                  <a
-                    href="https://github.com/Bismithblde/EcoCart"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
-                  >
-                    GitHub
-                  </a>
-                  <a
-                    href="https://ecocart.rychen.dev/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
-                  >
-                    Live site
-                  </a>
-                </div>
-              </div>
-            </div>
-            {/* Mineral Water */}
-            <div className="project-item flex flex-col w-full border-b border-[#fcf5e6]/20 transition-all duration-300 group-hover:opacity-40 group-hover:grayscale hover:opacity-100! hover:grayscale-0! last:border-b-0">
-              <div className="p-10 flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-6">
-                  <h2
-                    className={`text-[#fcf5e6] text-3xl ${blackOpsOne.className}`}
-                  >
-                    Mineral Water
-                  </h2>
-                  <p
-                    className={`max-w-[45%] text-right text-sm text-[#fcf5e6]/70 ${jetBrainsMono.className}`}
-                  >
-                    Next.js, PostgreSQL, Supabase
-                  </p>
-                </div>
-                <p
-                  className={`text-[#fcf5e6]/90 text-xl ${jetBrainsMono.className} leading-relaxed`}
-                >
-                  Compare premium water brands by exact mineral composition and
-                  what those minerals mean for your body. The platform also
-                  combines data from 50,000+ NYC lead testing sites so users can
-                  make more informed water decisions.
-                </p>
-                <div className="flex gap-4 pt-2">
-                  <a
-                    href="https://github.com/Marreonline0201/code_a_site"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
-                  >
-                    GitHub
-                  </a>
-                  <a
-                    href="https://code-a-site-eta.vercel.app/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#fcf5e6] hover:underline ${jetBrainsMono.className} text-lg`}
-                  >
-                    Live site
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div className="h-screen"></div>
+  return (
+    <main
+      id="smooth-wrapper"
+      className="w-full max-w-full overflow-x-hidden bg-[#091315] text-[#fcf5e6] [font-family:var(--font-geist-sans)]"
+    >
+      <div id="smooth-content" className="relative overflow-hidden">
+        <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_18%_8%,rgba(252,245,230,0.11),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(122,167,154,0.13),transparent_32%),linear-gradient(180deg,#091315_0%,#071012_56%,#0d1716_100%)]" />
+        <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.055] [background-image:linear-gradient(#fcf5e6_1px,transparent_1px),linear-gradient(90deg,#fcf5e6_1px,transparent_1px)] [background-size:56px_56px]" />
+
+        <nav className="nav-shell fixed left-1/2 top-5 z-50 flex w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 items-center justify-between rounded-full border border-[#fcf5e6]/15 bg-[#091315]/72 px-4 py-3 text-sm text-[#fcf5e6] shadow-2xl shadow-black/20 backdrop-blur-xl md:px-6">
+          <a href="#top" className="font-medium tracking-[-0.03em]">
+            Ryan Chen
+          </a>
+          <div className="hidden items-center gap-7 text-[#fcf5e6]/68 md:flex">
+            <a href="#work" className="transition-colors hover:text-[#fcf5e6]">
+              Work
+            </a>
+            <a href="#contact" className="transition-colors hover:text-[#fcf5e6]">
+              Contact
+            </a>
+          </div>
+          <a
+            href="https://www.linkedin.com/in/bismithblde/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full bg-[#fcf5e6] px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#091315] transition-transform duration-500 hover:scale-105"
+          >
+            LinkedIn
+          </a>
+        </nav>
+
+        <section
+          id="top"
+          className="hero-section relative z-10 flex min-h-screen items-center px-5 py-28 text-center md:px-10 lg:px-16"
+        >
+          <div className="mx-auto flex w-full max-w-7xl flex-col items-center">
+            <div>
+              <div className="mb-7 flex items-center justify-center gap-5 text-sm uppercase tracking-[0.34em] text-[#fcf5e6]/56 [font-family:var(--font-geist-mono)]">
+                <p>Ryan Chen</p>
+                <span className="h-px w-8 bg-[#fcf5e6]/24" aria-hidden="true" />
+                <p className="flex items-center gap-2">
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  New York
+                </p>
+              </div>
+              <h1 className="mx-auto max-w-7xl text-[clamp(3.35rem,8vw,8.15rem)] font-semibold leading-[0.88] tracking-[-0.085em]">
+                <HeroPhrase text="I build." />{" "}
+                <span className="inline-block w-4 md:w-8" aria-hidden="true" />
+                <HeroPhrase text="I design." />{" "}
+                <span className="inline-block w-4 md:w-8" aria-hidden="true" />
+                <HeroPhrase text="I ship." />
+              </h1>
+              <p className="mx-auto mt-8 max-w-5xl text-xl leading-relaxed text-[#fcf5e6]/72 md:text-2xl">
+                I&apos;m a <span className="font-semibold text-[#fcf5e6]">computer science</span> student at{" "}
+                <span className="font-medium text-[#fcf5e6]">
+                  Stony Brook University
+                </span>{" "}
+                focused on{" "}
+                <span className="font-semibold text-[#fcf5e6]">full-stack</span>{" "}
+                product engineering. I build{" "}
+                <span className="font-semibold text-[#fcf5e6]">
+                  user-facing applications
+                </span>{" "}
+                from database and API design through polished, responsive
+                interfaces.
+              </p>
+              <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+                <a
+                  href="#work"
+                  className="rounded-full bg-[#fcf5e6] px-7 py-4 text-center text-sm font-semibold uppercase tracking-[0.18em] text-[#091315] transition-transform duration-500 hover:scale-105"
+                >
+                  View projects
+                </a>
+                <a
+                  href="https://github.com/bismithblde"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-[#fcf5e6]/22 px-7 py-4 text-center text-sm font-semibold uppercase tracking-[0.18em] text-[#fcf5e6] transition-all duration-500 hover:scale-105 hover:border-[#fcf5e6]/70"
+                >
+                  GitHub
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/bismithblde/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-[#fcf5e6]/22 px-7 py-4 text-center text-sm font-semibold uppercase tracking-[0.18em] text-[#fcf5e6] transition-all duration-500 hover:scale-105 hover:border-[#fcf5e6]/70"
+                >
+                  LinkedIn
+                </a>
+              </div>
+              <div className="mx-auto mt-8 flex max-w-4xl flex-wrap justify-center gap-2">
+                {skills.map((skill) => (
+                  <span
+                    className="rounded-full border border-[#fcf5e6]/14 bg-[#fcf5e6]/6 px-3 py-1.5 text-sm text-[#fcf5e6]/70"
+                    key={skill}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="work"
+          className="relative z-10 px-5 py-20 md:px-10 md:py-28 lg:px-16"
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-10 text-center">
+              <h2
+                className="projects-title mx-auto max-w-4xl text-[clamp(2.8rem,6vw,6.5rem)] font-semibold leading-[0.9] tracking-[-0.085em]"
+                aria-label="Projects"
+              >
+                {"Projects".split("").map((letter, index) => (
+                  <span
+                    className="projects-title-letter inline-block text-[#fcf5e6] [-webkit-text-stroke:1.4px_#fcf5e6]"
+                    aria-hidden="true"
+                    key={`${letter}-${index}`}
+                  >
+                    {letter}
+                  </span>
+                ))}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-7 lg:grid-cols-2">
+              {projects.map((project) => (
+                <article
+                  className="project-card group flex min-h-[360px] flex-col justify-between rounded-[2rem] border border-[#fcf5e6]/12 bg-[#0d1919] p-7 text-center shadow-2xl shadow-black/20 transition-[border-color,background-color] duration-500 hover:border-[#fcf5e6]/38 hover:bg-[#122020] md:p-9"
+                  key={project.title}
+                >
+                  <div>
+                    <div className="flex flex-col items-center gap-5">
+                      <h3 className="text-[clamp(2rem,3.4vw,3.5rem)] font-semibold leading-[0.92] tracking-[-0.075em]">
+                        {project.title}
+                      </h3>
+                      <div className="flex max-w-xl flex-wrap justify-center gap-2">
+                        {project.stack.split(", ").map((tag) => (
+                          <span
+                            className="rounded-full border border-[#fcf5e6]/12 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-[#fcf5e6]/52 [font-family:var(--font-geist-mono)]"
+                            key={`${project.title}-${tag}`}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="mx-auto mt-9 max-w-2xl text-lg leading-relaxed text-[#fcf5e6]/74 md:text-xl">
+                      {project.result}
+                    </p>
+                  </div>
+                  <div className="mt-10 flex flex-wrap justify-center gap-3">
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full border border-[#fcf5e6]/20 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] transition-all duration-500 hover:scale-105 hover:border-[#fcf5e6]/70"
+                    >
+                      GitHub
+                    </a>
+                    {project.live ? (
+                      <a
+                        href={project.live}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full bg-[#fcf5e6] px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#091315] transition-transform duration-500 hover:scale-105"
+                      >
+                        Live site
+                      </a>
+                    ) : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <footer
+          id="contact"
+          className="cta-section relative z-10 px-5 py-24 md:px-10 md:py-32 lg:px-16"
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="cta-line mb-12 h-px w-full bg-[#fcf5e6]/50" />
+            <div className="flex flex-col justify-between gap-10 md:flex-row md:items-end">
+              <div>
+                <h2 className="max-w-4xl text-[clamp(3rem,7vw,7rem)] font-semibold leading-[0.88] tracking-[-0.09em]">
+                  Interested in hiring me?
+                </h2>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
+                <a
+                  href="https://www.linkedin.com/in/bismithblde/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full bg-[#fcf5e6] px-7 py-4 text-center text-sm font-semibold uppercase tracking-[0.18em] text-[#091315] transition-transform duration-500 hover:scale-105"
+                >
+                  Message Ryan
+                </a>
+                <a
+                  href="https://github.com/bismithblde"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-[#fcf5e6]/22 px-7 py-4 text-center text-sm font-semibold uppercase tracking-[0.18em] text-[#fcf5e6] transition-all duration-500 hover:scale-105 hover:border-[#fcf5e6]/70"
+                >
+                  View GitHub
+                </a>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
-    </div>
+    </main>
   );
 }
