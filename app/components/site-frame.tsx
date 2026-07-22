@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/dist/ScrollTrigger";
 import ScrollSmoother from "gsap/dist/ScrollSmoother";
@@ -27,83 +27,26 @@ function SiteNav() {
   const navRef = useRef<HTMLElement>(null);
   const backdropRef = useRef<HTMLSpanElement>(null);
   const activeLinkRef = useRef<HTMLElement | null>(null);
-  const motionSequenceRef = useRef(0);
 
   const setCompensatedRadius = (backdrop: HTMLElement) => {
-    const currentScale = Number(gsap.getProperty(backdrop, "scaleX")) || 1;
+    const currentScale = Math.max(Number(gsap.getProperty(backdrop, "scaleX")) || 1, 0.001);
     const radiusY = backdrop.offsetHeight / 2;
     const radiusX = radiusY / currentScale;
     backdrop.style.borderRadius = `${radiusX}px / ${radiusY}px`;
   };
 
-  const resetBackdropGeometry = (backdrop: HTMLElement) => {
-    gsap.set(backdrop, {
-      left: 0,
-      right: 0,
-      width: "auto",
-      scaleX: 1,
-      transformOrigin: "center",
-    });
-    backdrop.style.borderRadius = "999px";
-    backdrop.dataset.native = "false";
-  };
-
-  const renderNativeBubble = (backdrop: HTMLElement, width: number, center: number) => {
-    gsap.set(backdrop, {
-      left: center - width / 2,
-      right: "auto",
-      width,
-      scaleX: 1,
-      transformOrigin: "center",
-    });
-    backdrop.style.borderRadius = "999px";
-    backdrop.dataset.native = "true";
-  };
-
-  const prepareNativeBubbleForScale = (backdrop: HTMLElement, nav: HTMLElement) => {
-    if (backdrop.dataset.native !== "true") return;
-
-    const navBounds = nav.getBoundingClientRect();
-    const bubbleBounds = backdrop.getBoundingClientRect();
-    const scaleX = bubbleBounds.width / navBounds.width;
-    const targetCenter = bubbleBounds.left - navBounds.left + bubbleBounds.width / 2;
-    const unscaledCenter = navBounds.width / 2;
-    const originX = (targetCenter - scaleX * unscaledCenter) / (1 - scaleX);
-
-    gsap.set(backdrop, {
-      left: 0,
-      right: 0,
-      width: "auto",
-      scaleX,
-      transformOrigin: `${originX}px center`,
-    });
-    setCompensatedRadius(backdrop);
-    backdrop.dataset.native = "false";
-  };
-
-  const animateBackdropScale = (
-    scaleX: number,
-    originX?: number,
-    onComplete?: () => void,
-  ) => {
+  const animateBackdrop = (scaleX: number, x: number) => {
     const backdrop = backdropRef.current;
     if (!backdrop) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const duration = reducedMotion ? 0.22 : 0.58;
-
     gsap.killTweensOf(backdrop);
-    if (originX !== undefined) {
-      gsap.set(backdrop, { transformOrigin: `${originX}px center` });
-    }
-
     gsap.to(backdrop, {
+      x,
       scaleX,
-      duration,
-      ease: reducedMotion ? "power1.out" : "power3.inOut",
-      overwrite: "auto",
+      duration: 0.58,
+      ease: "power3.inOut",
+      overwrite: true,
       onUpdate: () => setCompensatedRadius(backdrop),
-      onComplete,
     });
   };
 
@@ -122,42 +65,13 @@ function SiteNav() {
       : labelBounds.width + horizontalPadding * 2;
     const targetCenter = labelBounds.left - navBounds.left + labelBounds.width / 2;
     const targetScale = targetWidth / navBounds.width;
-    const unscaledCenter = navBounds.width / 2;
-    const correctedOrigin = (targetCenter - targetScale * unscaledCenter) / (1 - targetScale);
-    const sequence = ++motionSequenceRef.current;
+    const targetX = targetCenter - navBounds.width / 2;
 
-    const collapse = () => {
-      if (sequence !== motionSequenceRef.current) return;
-      animateBackdropScale(targetScale, correctedOrigin, () => {
-        if (sequence !== motionSequenceRef.current) return;
-        renderNativeBubble(backdrop, targetWidth, targetCenter);
-      });
-    };
-
-    if (backdrop.dataset.native === "true") {
-      prepareNativeBubbleForScale(backdrop, nav);
-      animateBackdropScale(1, undefined, collapse);
-      return;
-    }
-
-    const currentScale = Number(gsap.getProperty(backdrop, "scaleX")) || 1;
-    if (currentScale < 0.999) {
-      animateBackdropScale(1, undefined, collapse);
-    } else {
-      collapse();
-    }
+    animateBackdrop(targetScale, targetX);
   };
 
   const expandBackdrop = () => {
-    const nav = navRef.current;
-    const backdrop = backdropRef.current;
-    if (!nav || !backdrop) return;
-
-    const sequence = ++motionSequenceRef.current;
-    prepareNativeBubbleForScale(backdrop, nav);
-    animateBackdropScale(1, undefined, () => {
-      if (sequence === motionSequenceRef.current) resetBackdropGeometry(backdrop);
-    });
+    animateBackdrop(1, 0);
   };
 
   return (
@@ -258,27 +172,103 @@ function Cursor() {
 
 function PageLoader() {
   return (
-    <div className="page-loader" aria-hidden="true">
-      <p>Ryan Chen</p>
+    <div
+      className="page-loader fixed inset-0 z-[80] grid place-content-center bg-white text-[var(--ink)] [transform:translate3d(0,0,0)] will-change-transform"
+      aria-hidden="true"
+      data-page-loader
+    >
+      <p className="m-0 font-[family-name:var(--font-editorial)] text-[clamp(1.45rem,2.4vw,2.4rem)] font-light leading-none tracking-[-0.035em]">
+        live, laugh, love
+      </p>
     </div>
   );
 }
 
 export function SiteFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const initialPathnameRef = useRef(pathname);
+  const shellRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current;
+    const loader = shell?.querySelector<HTMLElement>("[data-page-loader]");
+    if (!shell || !loader) return;
+
+    const context = gsap.context(() => {
+      const loaderText = loader.querySelector("p");
+      const nameLines = gsap.utils.toArray<HTMLElement>(".name-line");
+      const firstName = gsap.utils.toArray<HTMLElement>(".name-line:first-child .name-letter");
+      const lastName = gsap.utils.toArray<HTMLElement>(".name-line:last-child .name-letter");
+      const phrases = gsap.utils.toArray<HTMLElement>(".kinetic-phrase");
+      const timeline = gsap.timeline({ defaults: { overwrite: "auto" } });
+
+      gsap.set(loader, { yPercent: 0, autoAlpha: 1 });
+
+      if (initialPathnameRef.current === "/") {
+        gsap.set(nameLines, { overflow: "clip" });
+        gsap.set([...firstName, ...lastName], { yPercent: 118 });
+        gsap.set(phrases, { yPercent: 115 });
+      }
+
+      timeline
+        .fromTo(
+          loaderText,
+          { y: 5 },
+          { y: 0, duration: 0.4, ease: "power2.out" },
+          0,
+        )
+        .to(
+          loader,
+          {
+            yPercent: -100,
+            duration: 1,
+            ease: "power4.inOut",
+            onComplete: () => {
+              gsap.set(loader, { autoAlpha: 0 });
+            },
+          },
+          0.8,
+        );
+
+      if (initialPathnameRef.current === "/") {
+        timeline
+          .to(
+            firstName,
+            { yPercent: 0, duration: 0.72, stagger: 0.075, ease: "power4.out" },
+            1.38,
+          )
+          .to(
+            lastName,
+            { yPercent: 0, duration: 0.72, stagger: 0.075, ease: "power4.out" },
+            1.68,
+          )
+          .set(nameLines[0], { overflow: "visible" }, 2.33)
+          .set(nameLines[1], { overflow: "visible" }, 2.63)
+          .to(
+            phrases,
+            { yPercent: 0, duration: 0.42, stagger: 0.3, ease: "power3.out" },
+            2.08,
+          )
+          .set(
+            [...firstName, ...lastName, ...phrases],
+            { clearProps: "transform" },
+            3.1,
+          );
+      }
+    }, shell);
+
+    return () => context.revert();
+  }, []);
 
   useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const smoother = reducedMotion
-      ? null
-      : ScrollSmoother.create({
-          wrapper: "#smooth-wrapper",
-          content: "#smooth-content",
-          smooth: 1.15,
-          speed: 0.92,
-          normalizeScroll: true,
-          effects: true,
-        });
+    const smoother = ScrollSmoother.create({
+      wrapper: "#smooth-wrapper",
+      content: "#smooth-content",
+      smooth: 1.15,
+      speed: 0.92,
+      normalizeScroll: true,
+      effects: true,
+    });
 
     const scrollToHash = (hash: string, animate: boolean) => {
       const anchor = document.getElementById(decodeURIComponent(hash.slice(1)));
@@ -290,13 +280,8 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
       const nav = document.querySelector<HTMLElement>(".nav-position");
       const offset = (nav?.offsetHeight ?? 54) + (nav?.offsetTop ?? 24) + 24;
 
-      if (smoother) {
-        const revealOffset = target.closest("[data-animate]") ? 28 : 0;
-        smoother.scrollTo(target, animate, `top top+=${offset + revealOffset}`);
-      } else {
-        const top = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top: Math.max(0, top), behavior: animate ? "smooth" : "auto" });
-      }
+      const revealOffset = target.closest("[data-animate]") ? 28 : 0;
+      smoother.scrollTo(target, animate, `top top+=${offset + revealOffset}`);
     };
 
     const onHashLink = (event: MouseEvent) => {
@@ -309,7 +294,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
       event.preventDefault();
       event.stopPropagation();
       window.history.pushState(null, "", url.hash);
-      scrollToHash(url.hash, !reducedMotion);
+      scrollToHash(url.hash, true);
     };
 
     document.addEventListener("click", onHashLink, true);
@@ -317,13 +302,6 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
     const hashScroll = window.setTimeout(() => {
       if (window.location.hash) scrollToHash(window.location.hash, false);
     }, 120);
-
-    if (reducedMotion) {
-      return () => {
-        window.clearTimeout(hashScroll);
-        document.removeEventListener("click", onHashLink, true);
-      };
-    }
 
     const context = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>("[data-animate]").forEach((element) => {
@@ -341,7 +319,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
 
       gsap.utils.toArray<HTMLElement>("[data-project-row]").forEach((row, index) => {
         gsap.from(row, {
-          x: index % 2 === 0 ? -22 : 22,
+          x: window.innerWidth <= 680 ? 0 : index % 2 === 0 ? -22 : 22,
           duration: 0.75,
           ease: "power2.out",
           scrollTrigger: {
@@ -366,11 +344,13 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   return (
-    <div id="smooth-wrapper">
+    <div ref={shellRef} className="site-shell">
       <PageLoader />
       <Cursor />
       <SiteNav />
-      <div id="smooth-content">{children}</div>
+      <div id="smooth-wrapper">
+        <div id="smooth-content">{children}</div>
+      </div>
     </div>
   );
 }

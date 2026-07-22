@@ -2,6 +2,12 @@ import Image from "next/image";
 
 const projects = [
   {
+    title: "WAL Project",
+    description: "Concurrent Windows TCP key-value database with durable batched writes.",
+    stack: "C++17 / WinSock2 / WSAPoll / RESP2 / WAL",
+    github: "https://github.com/Bismithblde/WAL-Project",
+  },
+  {
     title: "Interlink",
     description: "Student matching by class, interest, and schedule.",
     stack: "React / Express / PostgreSQL / Redis / OpenAI",
@@ -34,7 +40,7 @@ const Arrow = () => <span aria-hidden="true">↗</span>;
 
 function NameLine({ children }: { children: string }) {
   return (
-    <span className="name-line" aria-hidden="true">
+    <span className="name-line relative m-0 block p-0 first:z-[1]" aria-hidden="true">
       {Array.from(children).map((letter, index) => (
         <span className="name-letter" key={`${letter}-${index}`}>
           {letter}
@@ -49,15 +55,23 @@ export default function Home() {
     <>
       <section className="hero page-section" aria-labelledby="hero-title">
         <div className="page-container hero-inner">
-          <h1 id="hero-title" className="display-name" data-animate aria-label="Ryan Chen">
+          <h1 id="hero-title" className="display-name" aria-label="Ryan Chen">
             <NameLine>Ryan</NameLine>
             <NameLine>Chen</NameLine>
           </h1>
 
           <div className="hero-details">
-            <div className="hero-introduction" data-animate>
+            <div className="hero-introduction">
               <p className="kinetic-line" aria-label="I build. I design. I ship.">
-                <span>I build.</span> <span>I design.</span> <span>I ship.</span>
+                <span className="phrase-clip inline-block overflow-clip align-bottom" aria-hidden="true">
+                  <span className="kinetic-phrase inline-block transition-[color,transform] duration-300 ease-[var(--ease-out)] hover:translate-x-[0.08em] hover:text-[var(--ink-soft)]">I build.</span>
+                </span>{" "}
+                <span className="phrase-clip inline-block overflow-clip align-bottom" aria-hidden="true">
+                  <span className="kinetic-phrase inline-block text-[var(--moss)] transition-[color,transform] duration-300 ease-[var(--ease-out)] hover:translate-x-[0.08em] hover:text-[var(--ink-soft)]">I design.</span>
+                </span>{" "}
+                <span className="phrase-clip inline-block overflow-clip align-bottom" aria-hidden="true">
+                  <span className="kinetic-phrase inline-block transition-[color,transform] duration-300 ease-[var(--ease-out)] hover:translate-x-[0.08em] hover:text-[var(--ink-soft)]">I ship.</span>
+                </span>
               </p>
               <p className="hero-summary">
                 Useful products from database to interface.
@@ -78,7 +92,7 @@ export default function Home() {
               </div>
             </div>
 
-            <nav className="wayfinding" aria-label="Page shortcuts" data-animate>
+            <nav className="wayfinding" aria-label="Page shortcuts">
               <p className="utility-label">Where you can start</p>
               <a href="#work" data-cursor-label="View">
                 <span className="wayfinding-glyph" aria-hidden="true">↗</span>

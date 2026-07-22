@@ -187,29 +187,6 @@ button:focus-visible {
 }
 
 /* Loading screen and pointer */
-.page-loader {
-  position: fixed;
-  z-index: 80;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  background: var(--ink);
-  color: var(--paper);
-  animation: loader-exit 1.25s var(--ease-out) 0.15s forwards;
-}
-
-.page-loader p {
-  margin: 0;
-  font-size: clamp(3.25rem, 9vw, 8rem);
-  letter-spacing: -0.065em;
-  line-height: 0.9;
-}
-
-@keyframes loader-exit {
-  0%, 55% { transform: translateY(0); visibility: visible; }
-  100% { transform: translateY(-102%); visibility: hidden; }
-}
-
 .custom-cursor {
   position: fixed;
   z-index: 70;
@@ -277,13 +254,7 @@ button:focus-visible {
   font-size: clamp(6rem, 11.3vw, 11rem);
   font-weight: 100;
   letter-spacing: -0.06em;
-  line-height: 0.902;
-}
-
-.display-name > .name-line {
-  display: block;
-  margin: 0;
-  padding: 0;
+  line-height: 0.98;
 }
 
 .name-letter {
@@ -322,20 +293,6 @@ button:focus-visible {
   font-size: clamp(1.65rem, 2.4vw, 2.35rem);
   letter-spacing: -0.035em;
   line-height: 1.2;
-}
-
-.kinetic-line span {
-  display: inline-block;
-  transition: color 220ms ease, transform 300ms var(--ease-out);
-}
-
-.kinetic-line span:nth-child(2) {
-  color: var(--moss);
-}
-
-.kinetic-line span:hover {
-  color: var(--ink-soft);
-  transform: translateX(0.08em);
 }
 
 .hero-summary {
@@ -915,28 +872,5 @@ button:focus-visible {
 
   .goal-list article > p:last-child {
     grid-column: 2;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .page-loader {
-    display: none;
-  }
-
-  .name-letter {
-    transition-duration: 420ms !important;
   }
 }
