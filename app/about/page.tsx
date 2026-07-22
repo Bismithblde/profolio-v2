@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -7,10 +8,24 @@ export const metadata: Metadata = {
 };
 
 const facts = [
-  ["Favorite book", "Book title", "Add one short sentence here."],
-  ["Favorite podcast", "Podcast title", "Add one short sentence here."],
-  ["Current hobby", "Hobby placeholder", "Add one short sentence here."],
-  ["Currently learning", "Topic placeholder", "Add one short sentence here."],
+  {
+    label: "Favorite anime",
+    title: "Hunter x Hunter",
+    description: "The adventure, worldbuilding, and Nen system keep pulling me back.",
+    image: "/hunter-x-hunter.jpg",
+    alt: "Gon, Killua, Kurapika, and Leorio from Hunter x Hunter standing in front of a sepia map",
+    width: 1920,
+    height: 1080,
+  },
+  {
+    label: "Favorite game",
+    title: "League of Legends",
+    description: "The game I keep coming back to, no matter what the patch notes say.",
+    image: "/league-of-legends.webp",
+    alt: "Ekko and Sona surrounded by magical light in League of Legends artwork",
+    width: 4000,
+    height: 2000,
+  },
 ];
 
 const skills = [
@@ -21,9 +36,18 @@ const skills = [
 ];
 
 const goals = [
-  ["Goal one", "Add a concise short-term engineering or learning goal here."],
-  ["Goal two", "Add the kind of product, team, or problem you want to work on."],
-  ["Goal three", "Add a longer-term direction you want your career to grow toward."],
+  [
+    "Build for real users",
+    "Turn one of my projects into a product people return to, shaped by feedback instead of stopping at the demo.",
+  ],
+  [
+    "Master the systems behind the screen",
+    "Go deeper into databases, distributed systems, and infrastructure so the software I build stays fast and reliable as it grows.",
+  ],
+  [
+    "Lead products from idea to launch",
+    "Grow into an engineer who can shape product direction, mentor a strong team, and carry ambitious software all the way to production.",
+  ],
 ];
 
 export default function AboutPage() {
@@ -71,14 +95,37 @@ export default function AboutPage() {
         <div className="page-container">
           <header className="about-section-heading" data-animate>
             <h2 id="facts-title">Fun facts</h2>
-            <p className="utility-label">Placeholder content</p>
           </header>
-          <div className="fact-grid">
-            {facts.map(([label, title, description]) => (
-              <article className="fact-panel" key={label} data-animate>
-                <p className="utility-label">{label}</p>
-                <h3>{title}</h3>
-                <p>{description}</p>
+          <div className="border-b border-[var(--line)]">
+            {facts.map((fact, index) => (
+              <article
+                className="group grid gap-6 border-t border-[var(--line)] py-10 md:grid-cols-[4rem_minmax(13rem,0.72fr)_minmax(0,1.28fr)] md:gap-8 md:py-14 lg:grid-cols-[5rem_minmax(17rem,0.7fr)_minmax(0,1.3fr)] lg:gap-12 lg:py-16"
+                key={fact.label}
+                data-animate
+              >
+                <div className="flex items-start justify-between md:block">
+                  <p className="project-index pt-1">{String(index + 1).padStart(2, "0")}</p>
+                  <p className="utility-label pt-1 md:hidden">{fact.label}</p>
+                </div>
+                <div className="md:pt-1">
+                  <p className="utility-label hidden md:block">{fact.label}</p>
+                  <h3 className="mt-3 mb-0 text-[clamp(2.6rem,4.2vw,5rem)] font-normal leading-[0.92] tracking-[-0.055em] [text-wrap:balance] md:mt-8">
+                    {fact.title}
+                  </h3>
+                  <p className="mt-5 max-w-[30rem] text-[clamp(1.05rem,1.35vw,1.25rem)] leading-[1.5] text-[var(--ink-soft)] [text-wrap:pretty]">
+                    {fact.description}
+                  </p>
+                </div>
+                <div className="overflow-hidden rounded-[1.2rem] md:rounded-[1.5rem]">
+                  <Image
+                    className="block aspect-video h-auto w-full object-cover transition-transform duration-700 ease-[var(--ease-out)] motion-reduce:transition-none md:group-hover:scale-[1.015]"
+                    src={fact.image}
+                    alt={fact.alt}
+                    width={fact.width}
+                    height={fact.height}
+                    sizes="(max-width: 768px) 100vw, 58vw"
+                  />
+                </div>
               </article>
             ))}
           </div>
